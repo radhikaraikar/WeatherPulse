@@ -1,0 +1,57 @@
+# Render Blueprint for WeatherPulse India
+# This file configures the Web Service and PostgreSQL database
+
+databases:
+  - name: weatherpulse-db
+    plan: free
+    databaseName: weatherpulse
+    user: weatherpulse_user
+
+services:
+  - type: web
+    name: weatherpulse
+    runtime: node
+    plan: free
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
+    startCommand: node services/report-service/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8080"
+      - key: USE_MOCK_DATA
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: weatherpulse-db
+          property: connectionString
+      - key: DB_HOST
+        fromDatabase:
+          name: weatherpulse-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: weatherpulse-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: weatherpulse-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: weatherpulse-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: weatherpulse-db
+          property: password
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: DATA_GOV_IN_API_KEY
+        sync: false
+      - key: GOOGLE_GEOCODING_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod

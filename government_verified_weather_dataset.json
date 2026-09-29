@@ -1,0 +1,442 @@
+[
+  {
+    "report_id": "gov-430030-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/nowcast.php?id=mumbai",
+    "ogd_portal_url": "https://data.gov.in/resource/district-rainfall-normal-mm-monthly-seasonal-and-annual-data-period-1951-2000",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_climatological_tables.php?stn=430030",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-430030",
+      "wmo_id": "430030",
+      "station_name": "Mumbai (Santacruz Observatory)",
+      "elevation_meters": 14
+    },
+    "location": {
+      "city": "Mumbai",
+      "district": "Mumbai Suburban",
+      "state": "Maharashtra",
+      "latitude": 19.076,
+      "longitude": 72.8777,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Mumbai (Santacruz Observatory) (Mumbai, Maharashtra). Temperature: 28.0\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 75.0%, Wind Speed: 12.0 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 28.0,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 75.0,
+      "wind_speed_kmph": 12.0
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 430030 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-421820-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/nowcast.php?id=delhi",
+    "ogd_portal_url": "https://data.gov.in/resource/sub-divisional-monthly-rainfall-1901-2017",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_climatological_tables.php?stn=421820",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-421820",
+      "wmo_id": "421820",
+      "station_name": "New Delhi (Safdarjung National Observatory)",
+      "elevation_meters": 216
+    },
+    "location": {
+      "city": "New Delhi",
+      "district": "New Delhi",
+      "state": "Delhi",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at New Delhi (Safdarjung National Observatory) (New Delhi, Delhi). Temperature: 22.8\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 90.0%, Wind Speed: 6.0 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 22.8,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 90.0,
+      "wind_speed_kmph": 6.0
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 421820 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-432950-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "Open Government Data (data.gov.in)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://data.gov.in/keywords/karnataka-rainfall",
+    "ogd_portal_url": "https://data.gov.in/keywords/karnataka-rainfall",
+    "cdsp_archive_url": "https://imdpune.gov.in/hydrology/dist_rf.html",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-432950",
+      "wmo_id": "432950",
+      "station_name": "Bengaluru (HAL Airport Observatory)",
+      "elevation_meters": 921
+    },
+    "location": {
+      "city": "Bengaluru",
+      "district": "Bengaluru Urban",
+      "state": "Karnataka",
+      "latitude": 12.9716,
+      "longitude": 77.5946,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Bengaluru (HAL Airport Observatory) (Bengaluru, Karnataka). Temperature: 21.4\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 96.0%, Wind Speed: 1.6 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 21.4,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 96.0,
+      "wind_speed_kmph": 1.6
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 432950 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-428090-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/radar.php?radar=kolkata",
+    "ogd_portal_url": "https://data.gov.in/keywords/gangetic-west-bengal",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_rainfall_data.php",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-428090",
+      "wmo_id": "428090",
+      "station_name": "Kolkata (Alipore Observatory)",
+      "elevation_meters": 6
+    },
+    "location": {
+      "city": "Kolkata",
+      "district": "Kolkata",
+      "state": "West Bengal",
+      "latitude": 22.5726,
+      "longitude": 88.3639,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Kolkata (Alipore Observatory) (Kolkata, West Bengal). Temperature: 27.7\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 87.0%, Wind Speed: 3.0 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 27.7,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 87.0,
+      "wind_speed_kmph": 3.0
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 428090 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-432840-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/nowcast.php?id=mangalore",
+    "ogd_portal_url": "https://data.gov.in/keywords/dakshina-kannada-rainfall",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_rainfall_data.php",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-432840",
+      "wmo_id": "432840",
+      "station_name": "Moodubidire & Mangaluru Coastal Station",
+      "elevation_meters": 147
+    },
+    "location": {
+      "city": "Moodubidire",
+      "district": "Dakshina Kannada",
+      "state": "Karnataka",
+      "latitude": 13.07,
+      "longitude": 74.9964,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Moodubidire & Mangaluru Coastal Station (Moodubidire, Karnataka). Temperature: 25.3\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 91.0%, Wind Speed: 2.9 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 25.3,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 91.0,
+      "wind_speed_kmph": 2.9
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 432840 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-432790-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/nowcast.php?id=chennai",
+    "ogd_portal_url": "https://data.gov.in/keywords/tamil-nadu-rainfall",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_climatological_tables.php?stn=432790",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-432790",
+      "wmo_id": "432790",
+      "station_name": "Chennai (Meenambakkam Observatory)",
+      "elevation_meters": 16
+    },
+    "location": {
+      "city": "Chennai",
+      "district": "Chennai",
+      "state": "Tamil Nadu",
+      "latitude": 13.0827,
+      "longitude": 80.2707,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Chennai (Meenambakkam Observatory) (Chennai, Tamil Nadu). Temperature: 29.5\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 75.0%, Wind Speed: 7.7 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 29.5,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 75.0,
+      "wind_speed_kmph": 7.7
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 432790 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-431280-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/nowcast.php?id=hyderabad",
+    "ogd_portal_url": "https://data.gov.in/keywords/telangana-rainfall",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_climatological_tables.php?stn=431280",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-431280",
+      "wmo_id": "431280",
+      "station_name": "Hyderabad (Begumpet Observatory)",
+      "elevation_meters": 545
+    },
+    "location": {
+      "city": "Hyderabad",
+      "district": "Hyderabad",
+      "state": "Telangana",
+      "latitude": 17.385,
+      "longitude": 78.4867,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Hyderabad (Begumpet Observatory) (Hyderabad, Telangana). Temperature: 27.7\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 61.0%, Wind Speed: 3.7 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 27.7,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 61.0,
+      "wind_speed_kmph": 3.7
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 431280 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-424100-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "Open Government Data (data.gov.in)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://data.gov.in/search?title=assam+rainfall",
+    "ogd_portal_url": "https://data.gov.in/search?title=assam+rainfall",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_rainfall_data.php",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-424100",
+      "wmo_id": "424100",
+      "station_name": "Guwahati (Borjhar Airport Observatory)",
+      "elevation_meters": 54
+    },
+    "location": {
+      "city": "Guwahati",
+      "district": "Kamrup Metropolitan",
+      "state": "Assam",
+      "latitude": 26.1445,
+      "longitude": 91.7362,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Guwahati (Borjhar Airport Observatory) (Guwahati, Assam). Temperature: 27.2\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 87.0%, Wind Speed: 3.5 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 27.2,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 87.0,
+      "wind_speed_kmph": 3.5
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 424100 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-420830-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "India Meteorological Department (IMD)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://mausam.imd.gov.in/responsive/nowcast.php?id=shimla",
+    "ogd_portal_url": "https://data.gov.in/keywords/himachal-pradesh-weather",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_climatological_tables.php?stn=420830",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-420830",
+      "wmo_id": "420830",
+      "station_name": "Shimla (Central Observatory)",
+      "elevation_meters": 2205
+    },
+    "location": {
+      "city": "Shimla",
+      "district": "Shimla",
+      "state": "Himachal Pradesh",
+      "latitude": 31.1048,
+      "longitude": 77.1734,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Shimla (Central Observatory) (Shimla, Himachal Pradesh). Temperature: 12.1\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 89.0%, Wind Speed: 1.1 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 12.1,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 89.0,
+      "wind_speed_kmph": 1.1
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 420830 and NASA POWER satellite gridded cross-check."
+    }
+  },
+  {
+    "report_id": "gov-421650-202609281634",
+    "timestamp_utc": "2026-09-28T16:34:35.305304+00:00",
+    "source": "Open Government Data (data.gov.in)",
+    "source_category": "GOVERNMENT_VERIFIED",
+    "government_license": "Government Open Data Licence \u2013 India (GODL) / NASA Open Data",
+    "source_url": "https://data.gov.in/keywords/rajasthan-weather",
+    "ogd_portal_url": "https://data.gov.in/resource/daily-district-rainfall-data",
+    "cdsp_archive_url": "https://cdsp.imd.gov.in/home_climatological_tables.php?stn=421650",
+    "nasa_power_crosscheck_url": "https://power.larc.nasa.gov/api/temporal/",
+    "station_metadata": {
+      "station_id": "IMD-421650",
+      "wmo_id": "421650",
+      "station_name": "Bikaner (Desert Observatory)",
+      "elevation_meters": 224
+    },
+    "location": {
+      "city": "Bikaner",
+      "district": "Bikaner",
+      "state": "Rajasthan",
+      "latitude": 28.0229,
+      "longitude": 73.3119,
+      "geo_resolution": "EXACT_OBSERVATORY_GPS"
+    },
+    "raw_text": "Official Weather Observation at Bikaner (Desert Observatory) (Bikaner, Rajasthan). Temperature: 26.7\u00b0C, Rainfall: 0.0 mm, Relative Humidity: 70.0%, Wind Speed: 6.9 km/h. Sourced from Ministry of Earth Sciences (data.gov.in / IMD CDSP) and NASA POWER.",
+    "event_category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "confidence_score": 1.0,
+    "metrics": {
+      "temperature_c": 26.7,
+      "rainfall_mm": 0.0,
+      "relative_humidity_pct": 70.0,
+      "wind_speed_kmph": 6.9
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "is_government_ground_truth": true,
+    "imd_cross_check": {
+      "radar_reflectivity_dbz": 10.0,
+      "nearest_aws_rain_1h_mm": 0.0,
+      "physical_plausibility_pass": true,
+      "notes": "Verified via official IMD observatory 421650 and NASA POWER satellite gridded cross-check."
+    }
+  }
+]

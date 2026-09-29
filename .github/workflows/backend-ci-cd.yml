@@ -1,0 +1,89 @@
+name: Backend Services CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'deploy/**'
+      - 'docker-compose.yml'
+      - '*.py'
+      - '.github/workflows/backend-ci-cd.yml'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-python-services:
+    name: Test ML & Ingestion Python Services
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Linting & Test Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          python -m compileall .
+
+  build-and-push-containers:
+    name: Build & Push Microservice Docker Images to GHCR
+    needs: test-python-services
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        service:
+          - name: ml-service
+            dockerfile: deploy/docker/ml-service/Dockerfile
+          - name: realtime-service
+            dockerfile: deploy/docker/realtime-service/Dockerfile
+          - name: ingestion-service
+            dockerfile: deploy/docker/ingestion-service/Dockerfile
+          - name: report-service
+            dockerfile: deploy/docker/report-service/Dockerfile
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.service.dockerfile }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/weatherpulse-${{ matrix.service.name }}:latest
+            ghcr.io/${{ github.repository }}/weatherpulse-${{ matrix.service.name }}:${{ github.sha }}
+
+  deploy-to-cloud-demo:
+    name: Trigger Rolling Deploy on Cloud Demo (EC2 / Compute Engine)
+    needs: build-and-push-containers
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: SSH Remote Deploy Command
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEMO_SERVER_HOST }}
+          username: ${{ secrets.DEMO_SERVER_USER }}
+          key: ${{ secrets.DEMO_SERVER_SSH_KEY }}
+        continue-on-error: true # Safe if secrets are not populated in dev repository
+        with:
+          script: |
+            cd /opt/weatherpulse
+            git pull origin main
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker system prune -f

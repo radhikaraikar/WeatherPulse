@@ -1,0 +1,307 @@
+networks:
+  weatherpulse-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+  zookeeper_log:
+    driver: local
+  kafka_data:
+    driver: local
+
+services:
+  # ============================================================================
+  # 1. PRIMARY SPATIAL DATA STORE: PostgreSQL (Optional Docker Profile - Off by Default)
+  # Default: Uses Local PostgreSQL running on Windows Host via host.docker.internal
+  # ============================================================================
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: weatherpulse-postgres
+    profiles:
+      - optional-postgres
+      - donotstart
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    environment:
+      POSTGRES_DB: ${DB_NAME:-weatherpulse_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deploy/postgres/01-init-postgis.sql:/docker-entrypoint-initdb.d/01-init-postgis.sql:ro
+      - ./deploy/postgres/02-migration-indexes-moderation.sql:/docker-entrypoint-initdb.d/02-migration-indexes-moderation.sql:ro
+      - ./deploy/postgres/03-weather-alerts-schema.sql:/docker-entrypoint-initdb.d/03-weather-alerts-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-weatherpulse_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ============================================================================
+  # 2. IN-MEMORY CACHE & PUB/SUB BACKPLANE: Redis 7
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: weatherpulse-redis
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # ============================================================================
+  # 3. MESSAGE BROKER: Apache ZooKeeper & Apache Kafka
+  # ============================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: weatherpulse-zookeeper
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: weatherpulse-kafka
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  # One-shot topic provisioning container
+  kafka-init:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: weatherpulse-kafka-init
+    networks:
+      - weatherpulse-net
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # Block until Kafka is ready
+      echo 'Provisioning Kafka Topics...'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic weather.events.raw --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic weather.events.verified --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic weather.alerts.broadcast --replication-factor 1 --partitions 1
+      echo 'Successfully initialized Kafka Topics.'
+      "
+
+  # ============================================================================
+  # 4. MICROSERVICES LAYER (Connecting to Host PostgreSQL outside Docker)
+  # ============================================================================
+
+  # ML Ingestion & Verification Service (Flask / IndicBERT / pHash)
+  ml-service:
+    build:
+      context: .
+      dockerfile: deploy/docker/ml-service/Dockerfile
+    container_name: weatherpulse-ml-service
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - PORT=5000
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-5433}
+      - DB_NAME=${DB_NAME:-weatherpulse_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # Core Backend & REST APIs (Node.js 20 Express / Spatial DB Engine)
+  report-service:
+    build:
+      context: .
+      dockerfile: deploy/docker/report-service/Dockerfile
+    container_name: weatherpulse-report-service
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - PORT=8080
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-5433}
+      - DB_NAME=${DB_NAME:-weatherpulse_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./services/report-service:/app
+      - ./government_verified_weather_dataset.json:/app/government_verified_weather_dataset.json
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 0"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Real-Time WebSocket Broadcast Server (Node.js 20)
+  realtime-service:
+    build:
+      context: .
+      dockerfile: deploy/docker/realtime-service/Dockerfile
+    container_name: weatherpulse-realtime-service
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    depends_on:
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - PORT=4000
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-5433}
+      - DB_NAME=${DB_NAME:-weatherpulse_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Gov / IMD Ingestion Worker
+  ingestion-service:
+    build:
+      context: .
+      dockerfile: deploy/docker/ingestion-service/Dockerfile
+    container_name: weatherpulse-ingestion-service
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    depends_on:
+      kafka:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-5433}
+      - DB_NAME=${DB_NAME:-weatherpulse_db}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - DATA_GOV_IN_API_KEY=${DATA_GOV_IN_API_KEY}
+
+  # ============================================================================
+  # 5. FRONTEND MISSION CONTROL DASHBOARD (Nginx Reverse Proxy / Web App)
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/docker/frontend/Dockerfile
+    container_name: weatherpulse-frontend
+    restart: unless-stopped
+    networks:
+      - weatherpulse-net
+    depends_on:
+      - report-service
+      - realtime-service
+      - ml-service
+    ports:
+      - "80:80"
+      - "3000:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+      - ./styles.css:/usr/share/nginx/html/styles.css
+      - ./app.js:/usr/share/nginx/html/app.js
+      - ./govDataService.js:/usr/share/nginx/html/govDataService.js
+      - ./liveApiClient.js:/usr/share/nginx/html/liveApiClient.js
+      - ./government_verified_weather_dataset.json:/usr/share/nginx/html/government_verified_weather_dataset.json
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

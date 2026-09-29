@@ -1,0 +1,218 @@
+[
+  {
+    "report_id": "wp-real-430030-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:32.771096Z",
+    "wmo_station_id": "430030",
+    "station_name": "MUMBAI / SANTACRUZ",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "coordinates": {
+      "lat": 19.076,
+      "lon": 72.8777
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 28.7,
+      "relative_humidity_pct": 82,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 13.6,
+      "wmo_code": 3
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-421820-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:33.549342Z",
+    "wmo_station_id": "421820",
+    "station_name": "DELHI / SAFDARJUNG",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "coordinates": {
+      "lat": 28.6139,
+      "lon": 77.209
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 32.9,
+      "relative_humidity_pct": 46,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 8.3,
+      "wmo_code": 0
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-432950-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:34.344781Z",
+    "wmo_station_id": "432950",
+    "station_name": "BANGALORE / HAL",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "coordinates": {
+      "lat": 12.9716,
+      "lon": 77.5946
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 23.2,
+      "relative_humidity_pct": 81,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 16.7,
+      "wmo_code": 3
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-432790-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:35.218350Z",
+    "wmo_station_id": "432790",
+    "station_name": "CHENNAI / MEENAMBAKKAM",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "coordinates": {
+      "lat": 13.0827,
+      "lon": 80.2707
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 30.6,
+      "relative_humidity_pct": 59,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 12.4,
+      "wmo_code": 3
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-428090-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:36.028197Z",
+    "wmo_station_id": "428090",
+    "station_name": "KOLKATA / ALIPORE",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "coordinates": {
+      "lat": 22.5726,
+      "lon": 88.3639
+    },
+    "category": "RAINFALL",
+    "severity": "MODERATE_YELLOW",
+    "metrics": {
+      "temperature_c": 27.0,
+      "relative_humidity_pct": 87,
+      "precipitation_mm": 0.4,
+      "wind_speed_kmph": 15.7,
+      "wmo_code": 80
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-431280-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:36.837791Z",
+    "wmo_station_id": "431280",
+    "station_name": "HYDERABAD / BEGUMPET",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "coordinates": {
+      "lat": 17.385,
+      "lon": 78.4867
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 27.4,
+      "relative_humidity_pct": 76,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 16.2,
+      "wmo_code": 3
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-426470-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:37.926877Z",
+    "wmo_station_id": "426470",
+    "station_name": "AHMEDABAD AIRPORT",
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "coordinates": {
+      "lat": 23.0225,
+      "lon": 72.5714
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 34.8,
+      "relative_humidity_pct": 47,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 7.9,
+      "wmo_code": 0
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-423480-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:38.700188Z",
+    "wmo_station_id": "423480",
+    "station_name": "JAIPUR / SANGANER",
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "coordinates": {
+      "lat": 26.9124,
+      "lon": 75.7873
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 33.3,
+      "relative_humidity_pct": 38,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 7.3,
+      "wmo_code": 0
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  },
+  {
+    "report_id": "wp-real-424100-202609241221",
+    "timestamp_utc": "2026-09-24T12:21:39.503282Z",
+    "wmo_station_id": "424100",
+    "station_name": "GUWAHATI / BORJHAR",
+    "city": "Guwahati",
+    "state": "Assam",
+    "coordinates": {
+      "lat": 26.1445,
+      "lon": 91.7362
+    },
+    "category": "RAINFALL",
+    "severity": "LOW_GREEN",
+    "metrics": {
+      "temperature_c": 29.7,
+      "relative_humidity_pct": 77,
+      "precipitation_mm": 0.0,
+      "wind_speed_kmph": 0.6,
+      "wmo_code": 3
+    },
+    "verification_status": "OFFICIAL_VERIFIED",
+    "trust_score": 100.0,
+    "data_source": "Google BigQuery / WMO Global Telemetry Network"
+  }
+]

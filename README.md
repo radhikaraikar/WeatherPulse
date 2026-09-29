@@ -1,4 +1,4 @@
-# 🌦️ WeatherPulse — National & Global Meteorological Intelligence Platform
+# 🌦️ WeatherPulse — National Weather Big Data Analytics Platform
 
 [![Design Standard](https://img.shields.io/badge/Design_Standard-GIGW_Government_Light_Theme-0B2E5C.svg)]()
 [![Data Sources](https://img.shields.io/badge/Data-Open--Meteo%20%7C%20NASA%20POWER%20%7C%20GDACS%20%7C%20USGS%20%7C%20IMD-046A38.svg)]()
@@ -9,59 +9,6 @@
 **WeatherPulse** is an enterprise-grade, real-time meteorological intelligence and early warning platform providing **hierarchical coverage across all 28 states & 8 UTs of India (and the globe)** backed by a local PostgreSQL database with **zero mock, hardcoded, or seeded data**.
 
 > **Disclaimer**: Academic research project conforming to the Guidelines for Indian Government Websites (GIGW) & WCAG 2.1 Level AA Accessibility Standards. Not an official IMD, WMO, or Government of India service. For official warnings visit [mausam.imd.gov.in](https://mausam.imd.gov.in).
-
----
-
-## 🏛️ System Architecture
-
-```mermaid
-flowchart TD
-    subgraph Data Sources ["Global & National Meteorological Feeds (Zero Mock Data)"]
-        D1["Open-Meteo Worldwide NWP Model (2,473 Cities / 247 Indian Cities)"]
-        D2["NASA POWER 30-Year Climatology Baseline"]
-        D3["GDACS (UN/EC Tropical Cyclones, Floods, Droughts)"]
-        D4["USGS Earthquake Hazards Live Feed"]
-        D5["IMD CDSP & Mausam Indian Telemetry"]
-        D6["data.gov.in Open Government Data"]
-        D7["Verified Citizen Ground Truth Observations"]
-    end
-
-    subgraph Persistence ["Storage Tier (Local PostgreSQL on Port 5433)"]
-        PG[("PostgreSQL 14+ / 18
-        - cities (2,473 GeoNames, 247 Indian cities)
-        - countries (250)
-        - weather_observations
-        - weather_forecasts
-        - alerts & disasters
-        - subscribers & notifications
-        - sync_log & api_keys")]
-    end
-
-    subgraph Backend ["Microservices & REST API Tier (Port 8080)"]
-        SYNC["Global Rotating Batch Sync Engine (10m schedule + startup)"]
-        REST["Public Weather API (/api/weather/..., /api/v1/...)"]
-        SWAGGER["OpenAPI Spec (/openapi.json, enabled when DEV=true)"]
-        ANALYTICS["Analytics & Verification Engine"]
-        NOTIF["Multi-Provider SMS/Email Alert Dispatcher (E.164, Dry-Run, Deduplication)"]
-    end
-
-    subgraph Web Portal ["GIGW-Compliant Government Web Portal"]
-        HOME["Home Dashboard (#home)"]
-        INDIA["India Weather (#live-weather)"]
-        WORLD["World Weather & Disasters (#world)"]
-        MONSOON["Monsoon Tracker (#monsoon)"]
-        FORECAST["7-Day City Forecast (#forecast)"]
-        ALERTS["Early Warnings & SMS/Email (#alerts)"]
-        ANALYTICS_UI["Big Data Analytics (#analytics)"]
-        CITIZEN["Citizen Reports (#citizen-reports)"]
-        MOD["Admin Moderation Queue (#moderation)"]
-    end
-
-    D1 & D2 & D3 & D4 & D5 & D6 --> SYNC --> PG
-    D7 --> REST --> PG
-    PG --> REST & ANALYTICS & NOTIF
-    REST & ANALYTICS & NOTIF --> Web Portal
-```
 
 ---
 

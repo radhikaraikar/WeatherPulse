@@ -30,16 +30,27 @@ const DB_USER = process.env.DB_USER || process.env.POSTGRES_USER || 'postgres';
 const DB_PASSWORD = process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || 'radhika';
 const DB_NAME = process.env.DB_NAME || process.env.POSTGRES_DB || 'weatherpulse';
 
-const pool = new Pool({
-  host: DB_HOST,
-  port: DB_PORT,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_NAME,
-  max: 25,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000
-});
+const poolConfig = process.env.DATABASE_URL
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL.includes('localhost') || process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+      max: 25,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000
+    }
+  : {
+      host: DB_HOST,
+      port: DB_PORT,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      max: 25,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000
+    };
+
+const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
   console.error('[DB Pool Error]', err.message);
@@ -49,10 +60,28 @@ async function verifyDatabaseConnection() {
   try {
     const res = await pool.query('SELECT current_database(), inet_server_addr(), inet_server_port()');
     const dbName = res.rows[0]?.current_database || DB_NAME;
-    console.log(`Connected to PostgreSQL ${dbName} at ${DB_HOST}:${DB_PORT}`);
+    console.log(`Connected to PostgreSQL database: ${dbName}`);
   } catch (err) {
-    console.error(`[FATAL] Failed to connect to PostgreSQL ${DB_NAME} at ${DB_HOST}:${DB_PORT}: ${err.message}`);
+    console.error(`[FATAL] Failed to connect to PostgreSQL: ${err.message}`);
     process.exit(1);
+  }
+}
+
+async function ensureSchemaCompatibility() {
+  try {
+    await pool.query(`
+      ALTER TABLE alerts ADD COLUMN IF NOT EXISTS severity VARCHAR(30);
+      ALTER TABLE alerts ADD COLUMN IF NOT EXISTS type VARCHAR(60);
+      ALTER TABLE alerts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
+      ALTER TABLE alerts ADD COLUMN IF NOT EXISTS message TEXT;
+      UPDATE alerts SET severity = severity_level WHERE severity IS NULL AND severity_level IS NOT NULL;
+      UPDATE alerts SET expires_at = end_time WHERE expires_at IS NULL AND end_time IS NOT NULL;
+      UPDATE alerts SET type = hazard WHERE type IS NULL AND hazard IS NOT NULL;
+      UPDATE alerts SET message = description WHERE message IS NULL AND description IS NOT NULL;
+    `);
+    console.log('[DB SCHEMA] Schema compatibility verified & updated');
+  } catch (e) {
+    console.warn('[DB SCHEMA WARNING] ensureSchemaCompatibility:', e.message);
   }
 }
 
@@ -207,7 +236,7 @@ app.get('/api/weather/cities', async (req, res) => {
         f_today.temp_max as today_max, f_today.temp_min as today_min, 
         f_today.precipitation_probability as rain_prob, f_today.precipitation_sum as rain_sum,
         f_tom.temp_max as tom_max, f_tom.temp_min as tom_min, f_tom.precipitation_probability as tom_rain_prob,
-        a.severity as alert_severity, a.headline as alert_headline, a.threshold as alert_threshold
+        COALESCE(a.severity, a.severity_level) as alert_severity, a.headline as alert_headline, a.threshold as alert_threshold
       FROM cities c
       LEFT JOIN LATERAL (
         SELECT * FROM weather_observations WHERE city_id = c.id ORDER BY fetched_at DESC LIMIT 1
@@ -219,7 +248,7 @@ app.get('/api/weather/cities', async (req, res) => {
         SELECT * FROM weather_forecasts WHERE city_id = c.id AND forecast_date = CURRENT_DATE + 1 LIMIT 1
       ) f_tom ON true
       LEFT JOIN LATERAL (
-        SELECT * FROM alerts WHERE (city_id = c.id OR state = c.state) AND expires_at > CURRENT_TIMESTAMP ORDER BY created_at DESC LIMIT 1
+        SELECT * FROM alerts WHERE (city_id = c.id OR state = c.state) AND (expires_at > CURRENT_TIMESTAMP OR end_time > CURRENT_TIMESTAMP) ORDER BY created_at DESC LIMIT 1
       ) a ON true
       WHERE c.country_code = 'IN' OR c.is_capital = TRUE
       ORDER BY c.is_capital DESC, c.name ASC;
@@ -2134,6 +2163,7 @@ app.get('/health', (req, res) => {
 // =============================================================================
 async function startServer() {
   await verifyDatabaseConnection();
+  await ensureSchemaCompatibility();
   await ensureDefaultAdmin();
 
   // Run initial sync on startup

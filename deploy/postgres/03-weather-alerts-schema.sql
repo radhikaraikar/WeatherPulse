@@ -103,22 +103,31 @@ CREATE TABLE IF NOT EXISTS alerts (
     id VARCHAR(120) PRIMARY KEY,
     city_id VARCHAR(100) REFERENCES cities(id) ON DELETE SET NULL,
     hazard VARCHAR(60) NOT NULL,
+    type VARCHAR(60),
     city VARCHAR(100) NOT NULL,
     state VARCHAR(100) NOT NULL,
     severity_color VARCHAR(30) NOT NULL,
-    severity_level VARCHAR(30) NOT NULL CHECK (severity_level IN ('EXTREME_RED', 'SEVERE_ORANGE', 'MODERATE_YELLOW', 'LOW_GREEN')),
+    severity_level VARCHAR(30) NOT NULL,
+    severity VARCHAR(30),
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
+    expires_at TIMESTAMPTZ,
     headline VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
+    message TEXT,
     safety_advice TEXT NOT NULL,
     forecast_value VARCHAR(100) NOT NULL,
     threshold VARCHAR(100) NOT NULL,
     source VARCHAR(150) NOT NULL DEFAULT 'Open-Meteo & IMD Radar NWP Model',
-    source_type VARCHAR(50) NOT NULL DEFAULT 'model-derived' CHECK (source_type IN ('model-derived', 'official')),
+    source_type VARCHAR(50) NOT NULL DEFAULT 'model-derived',
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS severity VARCHAR(30);
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS type VARCHAR(60);
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS message TEXT;
 
 -- 6. Legacy compatibility tables / views for existing code
 CREATE TABLE IF NOT EXISTS weather_current (

@@ -3,6 +3,12 @@
 -- Standards: IMD Four-Color Code Alert Protocol & WMO Disaster Early Warning Matrix
 -- ==============================================================================
 
+-- Ensure columns exist in case table was created with earlier schema version
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS severity VARCHAR(30);
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS type VARCHAR(60);
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
+ALTER TABLE alerts ADD COLUMN IF NOT EXISTS message TEXT;
+
 -- Clean up any expired or test records
 DELETE FROM alerts WHERE id LIKE 'alt-in-%' OR id LIKE 'alt-sim-%';
 

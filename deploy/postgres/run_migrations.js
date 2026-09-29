@@ -19,17 +19,25 @@ async function runAllMigrations() {
   const DB_PASSWORD = process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || 'radhika';
   const DB_NAME = process.env.DB_NAME || process.env.POSTGRES_DB || 'weatherpulse';
 
-  const client = new Client({
-    host: DB_HOST,
-    port: DB_PORT,
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME
-  });
+  const connectionConfig = process.env.DATABASE_URL
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.DATABASE_URL.includes('localhost') || process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false }
+      }
+    : {
+        host: DB_HOST,
+        port: DB_PORT,
+        user: DB_USER,
+        password: DB_PASSWORD,
+        database: DB_NAME,
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+      };
+
+  const client = new Client(connectionConfig);
 
   try {
     await client.connect();
-    console.log(`Connected to PostgreSQL ${DB_NAME} at ${DB_HOST}:${DB_PORT}`);
+    console.log(`Connected to PostgreSQL database for migrations`);
 
     const migrationFiles = [
       "01-init-postgis.sql",

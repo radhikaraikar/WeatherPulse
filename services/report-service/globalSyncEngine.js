@@ -71,8 +71,11 @@ async function syncWeatherDataBatch(pool, cities, sourceName = 'open-meteo') {
       break;
     } catch (err) {
       attempts++;
+      const isRateLimit = err.message && err.message.includes('429');
+      const delay = isRateLimit ? 5000 * attempts : 1000 * Math.pow(2, attempts);
+      console.warn(`[SYNC RETRY] Attempt ${attempts}/3 failed${isRateLimit ? ' (rate limited)' : ''}, retrying in ${delay}ms...`);
       if (attempts >= 3) throw err;
-      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempts)));
+      await new Promise(r => setTimeout(r, delay));
     }
   }
 
@@ -190,10 +193,13 @@ async function runScheduledGlobalSync(pool) {
 
     if (indiaCities.length > 0) {
       console.log(`[GLOBAL SYNC] Syncing ${indiaCities.length} Indian reference cities...`);
-      for (let i = 0; i < indiaCities.length; i += 25) {
-        const chunk = indiaCities.slice(i, i + 25);
+      for (let i = 0; i < indiaCities.length; i += 10) {
+        const chunk = indiaCities.slice(i, i + 10);
         const indRes = await syncWeatherDataBatch(pool, chunk, 'open-meteo-imd');
         totalUpdated += indRes.updated;
+        if (i + 10 < indiaCities.length) {
+          await new Promise(r => setTimeout(r, 2000)); // 2s delay between batches
+        }
       }
     }
 
@@ -221,11 +227,14 @@ async function runScheduledGlobalSync(pool) {
 
     if (globalCities.length > 0) {
       console.log(`[GLOBAL SYNC] Syncing rotating batch of ${globalCities.length} Global cities (offset: ${globalBatchOffset})...`);
-      // Chunk into batches of 25 for URL size limits
-      for (let i = 0; i < globalCities.length; i += 25) {
-        const chunk = globalCities.slice(i, i + 25);
+      // Chunk into batches of 10 with delay for rate limit compliance
+      for (let i = 0; i < globalCities.length; i += 10) {
+        const chunk = globalCities.slice(i, i + 10);
         const gRes = await syncWeatherDataBatch(pool, chunk, 'open-meteo-global');
         totalUpdated += gRes.updated;
+        if (i + 10 < globalCities.length) {
+          await new Promise(r => setTimeout(r, 2000)); // 2s delay between batches
+        }
       }
       globalBatchOffset += 50;
     }

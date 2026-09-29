@@ -170,16 +170,34 @@ function initAccessibilityControls() {
 
   // 6-Language Multilingual Switcher (Kannada, English, Hindi, Tamil, Telugu, Malayalam)
   const globalLangSelect = document.getElementById("globalLangSelect");
+  const savedLang = localStorage.getItem("weatherpulse_lang") || "en";
   if (globalLangSelect) {
-    const savedLang = localStorage.getItem("weatherpulse_lang") || "en";
     globalLangSelect.value = savedLang;
     setLanguage(savedLang);
     globalLangSelect.addEventListener("change", (e) => {
       setLanguage(e.target.value);
     });
   } else {
-    const savedLang = localStorage.getItem("weatherpulse_lang") || "en";
     setLanguage(savedLang);
+  }
+
+  // MutationObserver to automatically translate any dynamically added or modified DOM nodes
+  if (window.MutationObserver) {
+    const observer = new MutationObserver((mutations) => {
+      if (isTranslatingDOM || appState.currentLang === 'en') return;
+      let hasRelevantMutations = false;
+      for (let i = 0; i < mutations.length; i++) {
+        const m = mutations[i];
+        if (m.addedNodes && m.addedNodes.length > 0) {
+          hasRelevantMutations = true;
+          break;
+        }
+      }
+      if (hasRelevantMutations) {
+        scheduleDOMTranslation();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   const btnTicker = document.getElementById("btnPauseTicker");
@@ -213,6 +231,17 @@ function t(key, defaultText = "") {
   return defaultText || key;
 }
 
+let isTranslatingDOM = false;
+let translationDebounceTimer = null;
+
+function scheduleDOMTranslation() {
+  if (appState.currentLang === 'en') return;
+  if (translationDebounceTimer) clearTimeout(translationDebounceTimer);
+  translationDebounceTimer = setTimeout(() => {
+    translateAllDOMTextNodes(appState.currentLang);
+  }, 40);
+}
+
 // Full-Portal Multilingual Language Switcher (Whole website translated into 6 languages)
 function setLanguage(lang) {
   if (typeof TRANSLATIONS === "undefined" || !TRANSLATIONS[lang]) {
@@ -224,8 +253,9 @@ function setLanguage(lang) {
   } catch (_) {}
 
   document.documentElement.lang = lang;
+  document.documentElement.setAttribute("data-lang", lang);
 
-  // Sync select dropdown
+  // Sync select dropdowns
   const langSelect = document.getElementById("globalLangSelect");
   if (langSelect && langSelect.value !== lang) {
     langSelect.value = lang;
@@ -260,7 +290,9 @@ function setLanguage(lang) {
     document.getElementById("indiaSearchInput"),
     document.getElementById("worldSearchInput"),
     document.getElementById("alertSearchInput"),
-    document.getElementById("stateRiskSearchInput")
+    document.getElementById("stateRiskSearchInput"),
+    document.getElementById("filterCityTableInput"),
+    document.getElementById("filterStationInput")
   ];
   searchInputs.forEach(input => {
     if (input && dict.search_placeholder) {
@@ -285,13 +317,11 @@ function setLanguage(lang) {
   const tabObsTitle = document.querySelector("#imdTabObs .imd-tab-title");
   if (tabObsTitle) tabObsTitle.textContent = dict.nav_citizen || "Public Observation";
 
-  // 7. Deep DOM Phrase Translation (translates every static phrase across all views, headers, cards, tables & modals)
-  translateAllDOMTextNodes(lang);
-
-  // 8. Re-render dynamic elements for the active view to update live weather and cards
+  // 7. Update Live Ticker & Stats
   updateLiveTicker();
   updateLandingStats();
 
+  // 8. Re-render dynamic elements for the active view to update live weather and cards
   if (appState.currentView === "home") {
     renderLandingWeatherPreviewTable();
     renderLandingWarnings();
@@ -311,43 +341,49 @@ function setLanguage(lang) {
     renderCitizenReportsFeed();
   } else if (appState.currentView === "moderation") {
     renderModerationQueue();
+  } else if (appState.currentView === "warnings") {
+    renderWarningsPage();
+  } else if (appState.currentView === "nowcast") {
+    renderNowcastPage();
+  } else if (appState.currentView === "specialized") {
+    renderSpecializedPage();
   }
+
+  // 9. Deep DOM Phrase Translation (translates every static phrase across all views, headers, cards, tables & modals)
+  translateAllDOMTextNodes(lang);
 
   initLucideIcons();
 }
 
 function translateAllDOMTextNodes(lang) {
-  const dict = (typeof TRANSLATIONS !== "undefined" && TRANSLATIONS[lang]) ? TRANSLATIONS[lang] : null;
-  if (!dict) return;
-  const phrases = dict.phrases || {};
-  const phraseKeys = Object.keys(phrases).sort((a, b) => b.length - a.length);
+  if (isTranslatingDOM) return;
+  isTranslatingDOM = true;
 
-  const rootContainers = [
-    document.querySelector(".gov-main-header"),
-    document.querySelector(".gov-utility-bar"),
-    document.querySelector(".gov-nav-bar"),
-    document.querySelector(".imd-ops-bar"),
-    document.querySelector(".gov-alert-ticker"),
-    document.getElementById("mainContent"),
-    document.querySelector(".gov-footer"),
-    document.getElementById("citizenModal"),
-    document.getElementById("subscribeModal"),
-    document.getElementById("broadcastModal")
-  ].filter(Boolean);
+  try {
+    if (!lang) lang = appState.currentLang || "en";
+    const phraseMap = (typeof getMergedPhrasesForLang === "function") 
+      ? getMergedPhrasesForLang(lang) 
+      : ((typeof TRANSLATIONS !== "undefined" && TRANSLATIONS[lang]) ? TRANSLATIONS[lang].phrases || {} : {});
+    const phraseKeys = (typeof getSortedPhraseKeysForLang === "function")
+      ? getSortedPhraseKeysForLang(lang)
+      : Object.keys(phraseMap).sort((a, b) => b.length - a.length);
 
-  rootContainers.forEach(container => {
+    const root = document.body;
+    if (!root) return;
+
+    // 1. Translate all Text Nodes
     const walker = document.createTreeWalker(
-      container,
+      root,
       NodeFilter.SHOW_TEXT,
       {
         acceptNode: (node) => {
           const parent = node.parentElement;
           if (!parent) return NodeFilter.FILTER_REJECT;
           const tag = parent.tagName.toLowerCase();
-          if (tag === 'script' || tag === 'style' || tag === 'code' || parent.classList.contains('lang-selector-group') || parent.id === 'globalLangSelect') {
+          if (tag === 'script' || tag === 'style' || tag === 'code' || parent.classList.contains('lang-selector-group') || parent.id === 'globalLangSelect' || parent.id === 'subLanguage') {
             return NodeFilter.FILTER_REJECT;
           }
-          if (node.nodeValue.trim().length > 1) {
+          if (node.nodeValue.trim().length > 0) {
             return NodeFilter.FILTER_ACCEPT;
           }
           return NodeFilter.FILTER_SKIP;
@@ -360,30 +396,116 @@ function translateAllDOMTextNodes(lang) {
       nodes.push(walker.currentNode);
     }
 
-    nodes.forEach(node => {
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
       if (node._origEnglish === undefined) {
         node._origEnglish = node.nodeValue;
       }
       
       const sourceText = node._origEnglish;
       if (lang === 'en') {
-        node.nodeValue = sourceText;
-        return;
+        if (node.nodeValue !== sourceText) {
+          node.nodeValue = sourceText;
+        }
+        continue;
       }
 
-      let translated = sourceText;
-      let hasChange = false;
-      for (const phrase of phraseKeys) {
-        if (translated.includes(phrase)) {
-          translated = translated.split(phrase).join(phrases[phrase]);
-          hasChange = true;
+      const trimmed = sourceText.trim();
+      if (phraseMap[trimmed]) {
+        const directReplace = sourceText.replace(trimmed, phraseMap[trimmed]);
+        if (node.nodeValue !== directReplace) {
+          node.nodeValue = directReplace;
+        }
+      } else {
+        let current = sourceText;
+        let changed = false;
+        for (let k = 0; k < phraseKeys.length; k++) {
+          const pk = phraseKeys[k];
+          if (current.includes(pk)) {
+            current = current.split(pk).join(phraseMap[pk]);
+            changed = true;
+          }
+        }
+        if (changed && node.nodeValue !== current) {
+          node.nodeValue = current;
         }
       }
-      if (hasChange) {
-        node.nodeValue = translated;
+    }
+
+    // 2. Translate Input and Textarea Placeholders
+    const inputs = document.querySelectorAll("input, textarea");
+    inputs.forEach(el => {
+      if (el.id === 'globalLangSelect' || el.id === 'subLanguage') return;
+      if (el.placeholder) {
+        if (el._origPlaceholder === undefined) {
+          el._origPlaceholder = el.placeholder;
+        }
+        if (lang === 'en') {
+          el.placeholder = el._origPlaceholder;
+        } else {
+          const pTrim = el._origPlaceholder.trim();
+          if (phraseMap[pTrim]) {
+            el.placeholder = el._origPlaceholder.replace(pTrim, phraseMap[pTrim]);
+          } else {
+            let res = el._origPlaceholder;
+            for (let k = 0; k < phraseKeys.length; k++) {
+              const pk = phraseKeys[k];
+              if (res.includes(pk)) {
+                res = res.split(pk).join(phraseMap[pk]);
+              }
+            }
+            el.placeholder = res;
+          }
+        }
       }
     });
-  });
+
+    // 3. Translate Select Dropdown Options (except language dropdowns)
+    const options = document.querySelectorAll("select:not(#globalLangSelect):not(#subLanguage):not(#userRole) option");
+    options.forEach(opt => {
+      if (opt._origText === undefined) {
+        opt._origText = opt.textContent;
+      }
+      if (lang === 'en') {
+        opt.textContent = opt._origText;
+      } else {
+        const oTrim = opt._origText.trim();
+        if (phraseMap[oTrim]) {
+          opt.textContent = opt._origText.replace(oTrim, phraseMap[oTrim]);
+        } else {
+          let res = opt._origText;
+          for (let k = 0; k < phraseKeys.length; k++) {
+            const pk = phraseKeys[k];
+            if (res.includes(pk)) {
+              res = res.split(pk).join(phraseMap[pk]);
+            }
+          }
+          opt.textContent = res;
+        }
+      }
+    });
+
+    // 4. Translate Button and Link Titles
+    const titledEls = document.querySelectorAll("[title]");
+    titledEls.forEach(el => {
+      if (el._origTitle === undefined) {
+        el._origTitle = el.getAttribute("title");
+      }
+      if (el._origTitle) {
+        if (lang === 'en') {
+          el.setAttribute("title", el._origTitle);
+        } else {
+          const tTrim = el._origTitle.trim();
+          if (phraseMap[tTrim]) {
+            el.setAttribute("title", el._origTitle.replace(tTrim, phraseMap[tTrim]));
+          }
+        }
+      }
+    });
+
+  } finally {
+    isTranslatingDOM = false;
+  }
 }
 
 function updateNavTranslations(lang) {
@@ -528,6 +650,8 @@ function navigateToView(viewName) {
   }
 
   initLucideIcons();
+  translateAllDOMTextNodes(appState.currentLang);
+  setTimeout(() => translateAllDOMTextNodes(appState.currentLang), 120);
 }
 
 // =============================================================================
@@ -990,6 +1114,8 @@ async function loadGlobalTelemetry() {
 
   updateLandingStats();
   updateLiveTicker();
+  translateAllDOMTextNodes(appState.currentLang);
+  setTimeout(() => translateAllDOMTextNodes(appState.currentLang), 100);
 }
 
 async function fetchCitiesWeather() {

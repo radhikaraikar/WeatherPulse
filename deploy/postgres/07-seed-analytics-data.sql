@@ -2,6 +2,25 @@
 -- Migration 07: Analytics Foundation, Ground Incidents & Climate Baseline
 -- =============================================================================
 
+-- Add latitude/longitude columns if they don't exist (for PostGIS-enabled installs)
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='latitude') THEN
+        ALTER TABLE reports ADD COLUMN latitude NUMERIC(8, 4);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='longitude') THEN
+        ALTER TABLE reports ADD COLUMN longitude NUMERIC(8, 4);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='country_code') THEN
+        ALTER TABLE reports ADD COLUMN country_code VARCHAR(10) DEFAULT 'IN';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='language') THEN
+        ALTER TABLE reports ADD COLUMN language VARCHAR(10) DEFAULT 'en';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='reports' AND column_name='hashtags') THEN
+        ALTER TABLE reports ADD COLUMN hashtags TEXT[] DEFAULT ARRAY[]::TEXT[];
+    END IF;
+END $$;
+
 -- Seed Ground Weather & Disaster Reports conforming to PostgreSQL check constraints
 INSERT INTO reports (id, source_id, category, severity, latitude, longitude, location_name, city, district, state, raw_text, trust_score, verification_status, country_code, language, hashtags, timestamp)
 VALUES

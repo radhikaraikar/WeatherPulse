@@ -1067,6 +1067,26 @@ body {
   line-height: 1.5;
 }
 
+.footer-copyright {
+  margin: 14px 0 6px 0;
+  font-size: 0.875rem;
+  color: #F8FAFC;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.footer-copyright .authors-highlight {
+  color: #FDBA74;
+  font-weight: 600;
+}
+
+.footer-institution {
+  margin-bottom: 10px;
+  font-size: 0.8125rem;
+  color: #93C5FD;
+  font-weight: 500;
+}
+
 /* --------------------------------------------------------------------------
    13. Responsive Utilities
    -------------------------------------------------------------------------- */

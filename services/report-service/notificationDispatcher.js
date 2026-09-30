@@ -18,14 +18,14 @@ const detectedSmtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS || proc
 const isGmail = detectedSmtpUser.toLowerCase().includes('@gmail.com');
 
 let gatewayConfig = {
-  emailProvider: (process.env.EMAIL_PROVIDER || 'smtp').toLowerCase(),
+  emailProvider: (process.env.EMAIL_PROVIDER || 'brevo').toLowerCase(),
   smsProvider: (process.env.SMS_PROVIDER || 'fast2sms').toLowerCase(),
   smtpHost: process.env.SMTP_HOST || (isGmail ? 'smtp.gmail.com' : 'smtp.gmail.com'),
   smtpPort: parseInt(process.env.SMTP_PORT || (isGmail ? '465' : '587'), 10),
   smtpSecure: process.env.SMTP_SECURE === 'true' || isGmail || process.env.SMTP_PORT === '465',
   smtpUser: detectedSmtpUser,
   smtpPass: detectedSmtpPass,
-  smtpFrom: process.env.SMTP_FROM || (detectedSmtpUser ? `"WeatherPulse Alerts" <${detectedSmtpUser}>` : '"WeatherPulse India Alert Service" <alerts@weatherpulse.in>'),
+  smtpFrom: process.env.SMTP_FROM || (detectedSmtpUser ? `"WeatherPulse Alerts" <${detectedSmtpUser}>` : '"WeatherPulse India Alert Service" <radhikaraikar0607@gmail.com>'),
   resendApiKey: process.env.RESEND_API_KEY || '',
   brevoApiKey: process.env.BREVO_API_KEY || '',
   sendgridApiKey: process.env.SENDGRID_API_KEY || '',
@@ -385,10 +385,12 @@ async function sendEmail(to, subject, html, text) {
   }
 
   // 3. Brevo (Sendinblue) API Adapter (https://brevo.com)
-  if (gatewayConfig.brevoApiKey) {
+  const activeBrevoKey = gatewayConfig.brevoApiKey || process.env.BREVO_API_KEY;
+  if (activeBrevoKey) {
     try {
+      const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || 'radhikaraikar0607@gmail.com';
       const postData = JSON.stringify({
-        sender: { name: 'WeatherPulse India', email: 'alerts@weatherpulse.in' },
+        sender: { name: 'WeatherPulse India Alerts', email: senderEmail },
         to: [{ email: to }],
         subject,
         htmlContent: typeof html === 'string' ? html : `<p>${subject}</p>`
@@ -400,7 +402,7 @@ async function sendEmail(to, subject, html, text) {
           path: '/v3/smtp/email',
           method: 'POST',
           headers: {
-            'api-key': gatewayConfig.brevoApiKey,
+            'api-key': activeBrevoKey,
             'Content-Type': 'application/json',
             'Content-Length': Buffer.byteLength(postData)
           }
@@ -409,8 +411,10 @@ async function sendEmail(to, subject, html, text) {
           res.on('data', chunk => data += chunk);
           res.on('end', () => {
             if (res.statusCode >= 200 && res.statusCode < 300) {
-              resolve({ success: true, provider: 'brevo', status: 'DELIVERED' });
+              console.log(`[EMAIL REAL DISPATCH VIA BREVO] -> ${to} | Subject: "${subject}"`);
+              resolve({ success: true, provider: 'brevo', status: 'DELIVERED', data: JSON.parse(data || '{}') });
             } else {
+              console.warn(`[EMAIL BREVO NOTICE HTTP ${res.statusCode}]`, data);
               resolve({ success: false, provider: 'brevo', error: `HTTP ${res.statusCode}: ${data}` });
             }
           });

@@ -13,15 +13,19 @@ const https = require('https');
 const http = require('http');
 
 // Runtime Gateway Configuration (Can be updated dynamically from UI/API)
+const detectedSmtpUser = process.env.SMTP_USER || process.env.EMAIL_USER || process.env.GMAIL_USER || '';
+const detectedSmtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD || '';
+const isGmail = detectedSmtpUser.toLowerCase().includes('@gmail.com');
+
 let gatewayConfig = {
   emailProvider: (process.env.EMAIL_PROVIDER || 'smtp').toLowerCase(),
   smsProvider: (process.env.SMS_PROVIDER || 'fast2sms').toLowerCase(),
-  smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-  smtpPort: parseInt(process.env.SMTP_PORT || '587', 10),
-  smtpSecure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
-  smtpUser: process.env.SMTP_USER || process.env.EMAIL_USER || '',
-  smtpPass: process.env.SMTP_PASS || process.env.EMAIL_PASS || '',
-  smtpFrom: process.env.SMTP_FROM || process.env.EMAIL_FROM || '"WeatherPulse India Alert Service" <alerts@weatherpulse.in>',
+  smtpHost: process.env.SMTP_HOST || (isGmail ? 'smtp.gmail.com' : 'smtp.gmail.com'),
+  smtpPort: parseInt(process.env.SMTP_PORT || (isGmail ? '465' : '587'), 10),
+  smtpSecure: process.env.SMTP_SECURE === 'true' || isGmail || process.env.SMTP_PORT === '465',
+  smtpUser: detectedSmtpUser,
+  smtpPass: detectedSmtpPass,
+  smtpFrom: process.env.SMTP_FROM || (detectedSmtpUser ? `"WeatherPulse Alerts" <${detectedSmtpUser}>` : '"WeatherPulse India Alert Service" <alerts@weatherpulse.in>'),
   resendApiKey: process.env.RESEND_API_KEY || '',
   brevoApiKey: process.env.BREVO_API_KEY || '',
   sendgridApiKey: process.env.SENDGRID_API_KEY || '',

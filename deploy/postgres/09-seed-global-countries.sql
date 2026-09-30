@@ -3,6 +3,25 @@
 -- Seeds all 250 ISO Countries & Territories with Continents, Capitals, and Coordinates
 -- =============================================================================
 
+CREATE TABLE IF NOT EXISTS countries (
+  iso2 VARCHAR(2) PRIMARY KEY,
+  iso3 VARCHAR(3) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  continent VARCHAR(50) NOT NULL,
+  region VARCHAR(100),
+  capital VARCHAR(100),
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  population BIGINT
+);
+
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS country_code VARCHAR(2) DEFAULT 'IN';
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS country VARCHAR(100) DEFAULT 'India';
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS continent VARCHAR(50) DEFAULT 'Asia';
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS timezone VARCHAR(100) DEFAULT 'Asia/Kolkata';
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS population BIGINT DEFAULT 1000000;
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS admin1 VARCHAR(100);
+
 INSERT INTO countries (iso2, iso3, name, continent, region, capital, latitude, longitude, population) VALUES
 ('IN', 'IND', 'India', 'Asia', 'Southern Asia', 'New Delhi', 28.6139, 77.2090, 1428627663),
 ('US', 'USA', 'United States', 'North America', 'Northern America', 'Washington, D.C.', 38.9072, -77.0369, 339996563),

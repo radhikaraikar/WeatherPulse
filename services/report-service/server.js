@@ -70,6 +70,25 @@ async function verifyDatabaseConnection() {
 async function ensureSchemaCompatibility() {
   try {
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS countries (
+        iso2 VARCHAR(2) PRIMARY KEY,
+        iso3 VARCHAR(3) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        continent VARCHAR(50) NOT NULL,
+        region VARCHAR(100),
+        capital VARCHAR(100),
+        latitude DOUBLE PRECISION,
+        longitude DOUBLE PRECISION,
+        population BIGINT
+      );
+
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS country_code VARCHAR(2) DEFAULT 'IN';
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS country VARCHAR(100) DEFAULT 'India';
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS continent VARCHAR(50) DEFAULT 'Asia';
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS timezone VARCHAR(100) DEFAULT 'Asia/Kolkata';
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS population BIGINT DEFAULT 1000000;
+      ALTER TABLE cities ADD COLUMN IF NOT EXISTS admin1 VARCHAR(100);
+
       ALTER TABLE alerts ADD COLUMN IF NOT EXISTS severity VARCHAR(30);
       ALTER TABLE alerts ADD COLUMN IF NOT EXISTS type VARCHAR(60);
       ALTER TABLE alerts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
@@ -1759,7 +1778,19 @@ app.get('/api/v1/weather/countries', async (req, res) => {
     }
     query += ` GROUP BY c.iso2, c.iso3, c.name, c.continent, c.region, c.capital, c.latitude, c.longitude, c.population ORDER BY c.name ASC;`;
 
-    const dbRes = await pool.query(query, params);
+    let dbRes = await pool.query(query, params);
+    if (dbRes.rows.length === 0) {
+      try {
+        const seedPath = path.join(__dirname, '..', '..', 'deploy', 'postgres', '09-seed-global-countries.sql');
+        if (fs.existsSync(seedPath)) {
+          await pool.query(fs.readFileSync(seedPath, 'utf-8'));
+          dbRes = await pool.query(query, params);
+        }
+      } catch (seedErr) {
+        console.warn('[ON-DEMAND SEED ERROR]', seedErr.message);
+      }
+    }
+
     res.json({
       success: true,
       total_countries: dbRes.rows.length,
@@ -1802,7 +1833,7 @@ app.get('/api/v1/world/summary', async (req, res) => {
     `);
 
     const alertCounts = await pool.query(`
-      SELECT severity, COUNT(*) as count FROM alerts WHERE expires_at > CURRENT_TIMESTAMP GROUP BY severity;
+      SELECT severity, COUNT(*) as count FROM alerts WHERE (expires_at > CURRENT_TIMESTAMP OR end_time > CURRENT_TIMESTAMP) GROUP BY severity;
     `);
 
     res.json({
@@ -1821,7 +1852,7 @@ app.get('/api/v1/world/summary', async (req, res) => {
 // Climate Anomalies
 app.get('/api/v1/world/climate-anomalies', async (req, res) => {
   try {
-    const dbRes = await pool.query(`
+    const query = `
       SELECT 
         c.iso2, c.name, c.continent,
         ROUND(AVG(o.temperature)::numeric, 1) as current_temp,
@@ -1835,7 +1866,19 @@ app.get('/api/v1/world/climate-anomalies', async (req, res) => {
       WHERE o.temperature IS NOT NULL
       GROUP BY c.iso2, c.name, c.continent
       LIMIT 50;
-    `);
+    `;
+    let dbRes = await pool.query(query);
+    if (dbRes.rows.length === 0) {
+      try {
+        const seedPath = path.join(__dirname, '..', '..', 'deploy', 'postgres', '09-seed-global-countries.sql');
+        if (fs.existsSync(seedPath)) {
+          await pool.query(fs.readFileSync(seedPath, 'utf-8'));
+          dbRes = await pool.query(query);
+        }
+      } catch (seedErr) {
+        console.warn('[ON-DEMAND SEED ERROR ANOMALIES]', seedErr.message);
+      }
+    }
 
     res.json({
       success: true,

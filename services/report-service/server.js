@@ -79,6 +79,22 @@ async function ensureSchemaCompatibility() {
       UPDATE alerts SET type = hazard WHERE type IS NULL AND hazard IS NOT NULL;
       UPDATE alerts SET message = description WHERE message IS NULL AND description IS NOT NULL;
     `);
+
+    // Auto-seed global countries if empty
+    try {
+      const countriesCount = await pool.query('SELECT count(*) FROM countries');
+      if (parseInt(countriesCount.rows[0]?.count || '0', 10) === 0) {
+        const seedPath = path.join(__dirname, '..', '..', 'deploy', 'postgres', '09-seed-global-countries.sql');
+        if (fs.existsSync(seedPath)) {
+          const seedSql = fs.readFileSync(seedPath, 'utf-8');
+          await pool.query(seedSql);
+          console.log('[DB SCHEMA] Global countries & observatories successfully seeded.');
+        }
+      }
+    } catch (cErr) {
+      console.warn('[DB SCHEMA COUNTRIES SEED NOTICE]', cErr.message);
+    }
+
     console.log('[DB SCHEMA] Schema compatibility verified & updated');
   } catch (e) {
     console.warn('[DB SCHEMA WARNING] ensureSchemaCompatibility:', e.message);

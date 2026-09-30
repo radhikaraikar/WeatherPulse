@@ -47,7 +47,8 @@ async function runAllMigrations() {
       "05-add-state-to-users.sql",
       "06-password-reset-schema.sql",
       "07-seed-analytics-data.sql",
-      "08-seed-active-alerts.sql"
+      "08-seed-active-alerts.sql",
+      "09-seed-global-countries.sql"
     ];
 
     let failedCount = 0;

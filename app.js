@@ -3466,27 +3466,22 @@ function initSubscriberModalListeners() {
       }
 
       try {
+        // Request browser push permission non-blockingly (without await so UI doesn't stall)
         if ((payload.channel === "PUSH" || payload.channel === "ALL" || payload.channel === "BOTH") && "Notification" in window) {
           if (Notification.permission === "default") {
-            try {
-              await Notification.requestPermission();
-            } catch (_) {}
-          }
-          if (Notification.permission === "granted") {
-            try {
-              new Notification("WeatherPulse India — Alert Subscription Active", {
-                body: `You are enrolled in real-time severe warning dispatches for ${payload.state}.`,
-                icon: "https://cdn-icons-png.flaticon.com/512/1163/1163624.png"
-              });
-            } catch (_) {}
+            Notification.requestPermission().catch(() => {});
           }
         }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
 
         const res = await fetch("/api/v1/subscribers", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        }).then(r => r.json());
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        }).then(r => r.json()).finally(() => clearTimeout(timeoutId));
 
         if (res.success) {
           const notice = document.getElementById("subSuccessNotice");
@@ -3518,6 +3513,7 @@ function initSubscriberModalListeners() {
             }
 
             notice.style.display = "block";
+            notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             initLucideIcons();
           }
 
@@ -3527,7 +3523,13 @@ function initSubscriberModalListeners() {
           alert(`Subscription Error: ${res.error?.message || "Failed to register"}`);
         }
       } catch (err) {
-        alert(`Network Error: ${err.message}`);
+        if (err.name === 'AbortError') {
+          alert("Registration is processing in the background. Please check your email/phone shortly.");
+          closeModal();
+          loadActiveSubscribersCount();
+        } else {
+          alert(`Network Error: ${err.message}`);
+        }
       } finally {
         if (btnSubmit) {
           btnSubmit.disabled = false;

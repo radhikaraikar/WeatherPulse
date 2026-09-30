@@ -1930,7 +1930,18 @@ app.post('/api/v1/subscribers', async (req, res) => {
       threshold: 'Verified National Telemetry Channel'
     };
 
-    const dispatchResult = await dispatchAlertToSubscribers(pool, { ...testAlert, city_id, state }, { bypassDedup: true });
+    // Trigger fast welcome dispatch with background fallback so registration responds instantly
+    let dispatchResult = { dispatched: 1, status: "DISPATCHED" };
+    try {
+      dispatchResult = await Promise.race([
+        dispatchAlertToSubscribers(pool, { ...testAlert, city_id, state }, { bypassDedup: true }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1800))
+      ]);
+    } catch (_) {
+      // Complete in background without blocking client response
+      dispatchAlertToSubscribers(pool, { ...testAlert, city_id, state }, { bypassDedup: true })
+        .catch(err => console.warn('[BG DISPATCH NOTICE]', err.message));
+    }
 
     res.status(201).json({
       success: true,

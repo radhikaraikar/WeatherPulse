@@ -170,7 +170,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO weather_observations (city_id, fetched_at, temperature, humidity, precipitation, wind_speed, weather_code, source) VALUES
 ('wp-city-ind-delhi', CURRENT_TIMESTAMP, 31.5, 58, 0.0, 11.2, 1, 'Open-Meteo NWP Baseline'),
 ('wp-city-usa-washington', CURRENT_TIMESTAMP, 22.4, 52, 0.0, 9.5, 0, 'Open-Meteo NWP Baseline'),
-('wp-city-chn-beijing', CURRENT_TIMESTAMP, 19.8, 45, 0.0, 1, 'Open-Meteo NWP Baseline'),
+('wp-city-chn-beijing', CURRENT_TIMESTAMP, 19.8, 45, 0.0, 8.2, 1, 'Open-Meteo NWP Baseline'),
 ('wp-city-gbr-london', CURRENT_TIMESTAMP, 15.2, 74, 0.4, 14.1, 2, 'Open-Meteo NWP Baseline'),
 ('wp-city-fra-paris', CURRENT_TIMESTAMP, 17.6, 68, 0.0, 10.8, 1, 'Open-Meteo NWP Baseline'),
 ('wp-city-deu-berlin', CURRENT_TIMESTAMP, 16.4, 62, 0.0, 12.0, 2, 'Open-Meteo NWP Baseline'),
